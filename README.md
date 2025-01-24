@@ -1,4 +1,4 @@
-Tetris for the console. Written in Rust using [gemini-engine](https://github.com/renpenguin/gemini-rust)
+Tetris for the console. Written in Rust using [gemini-engine](https://github.com/renpenguin/gemini-engine)
 
 ### Running
 
