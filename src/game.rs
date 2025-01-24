@@ -8,12 +8,10 @@ use crossterm::{
     terminal::{Clear, ClearType},
 };
 use gemini_engine::{
-    elements::{
-        containers::CollisionContainer,
-        view::{ColChar, Modifier, Wrapping},
-        Sprite, Text, Vec2D, View,
-    },
+    ascii::{Sprite, Text},
+    core::{ColChar, Modifier, Vec2D},
     gameloop::MainLoopRoot,
+    view::View,
 };
 
 mod alerts;
@@ -32,7 +30,7 @@ pub struct Game {
     alert_display: AlertDisplay,
     block_manager: BlockManager,
     collision_manager: CollisionManager,
-    score: isize,
+    score: i64,
     t: usize,
     // Constants
     controls_help_text: String,
@@ -140,7 +138,7 @@ impl MainLoopRoot for Game {
 
                 let cleared_lines = self
                     .collision_manager
-                    .blit_and_clear_lines(&self.block_manager.block);
+                    .draw_and_clear_lines(&self.block_manager.block);
 
                 // Display an appropriate alert
                 self.alert_display.priorised_alerts_with_score(
@@ -170,48 +168,40 @@ impl MainLoopRoot for Game {
         self.view.clear();
 
         // Blit the walls and stationary blocks
-        self.view
-            .blit_double_width(&self.collision_manager.get(), Wrapping::Ignore);
+        self.view.draw_double_width(&self.collision_manager);
 
-        self.view
-            .blit_double_width(&self.block_manager.ghost_block, Wrapping::Ignore);
-        self.view
-            .blit_double_width(&self.block_manager.block, Wrapping::Ignore);
+        self.view.draw_double_width(&self.block_manager.ghost_block);
+        self.view.draw_double_width(&self.block_manager.block);
 
         // Next piece display
-        self.view.blit(
-            &Text::new(Vec2D::new(29, 9), "Next:", Modifier::None),
-            Wrapping::Panic,
-        );
         self.view
-            .blit_double_width(&self.block_manager.next_piece_display(), Wrapping::Ignore);
+            .draw(&Text::new(Vec2D::new(29, 9), "Next:", Modifier::None));
+        self.view
+            .draw_double_width(&self.block_manager.next_piece_display());
 
         // Held piece display
         if let Some(held_piece) = self.block_manager.held_piece_display() {
-            self.view.blit(
+            self.view.draw(
                 &Text::new(Vec2D::new(29, 1), "Hold", Modifier::None),
-                Wrapping::Panic,
             );
-            self.view.blit_double_width(&held_piece, Wrapping::Ignore);
+            self.view.draw_double_width(&held_piece);
         } else {
-            self.view.blit(
-                &Sprite::new(Vec2D::new(26, 0), &self.controls_help_text, Modifier::None),
-                Wrapping::Panic,
-            );
+            self.view.draw(&Sprite::new(
+                Vec2D::new(26, 0),
+                &self.controls_help_text,
+                Modifier::None,
+            ));
         }
 
         // Score display
-        self.view.blit(
-            &Text::new(
-                Vec2D::new(26, 7),
-                &format!("Score: {}", self.score),
-                Modifier::None,
-            ),
-            Wrapping::Panic,
-        );
+        self.view.draw(&Text::new(
+            Vec2D::new(26, 7),
+            &format!("Score: {}", self.score),
+            Modifier::None,
+        ));
 
         // Alerts display
-        self.view.blit(&self.alert_display, Wrapping::Ignore);
+        self.view.draw(&self.alert_display);
         self.alert_display.frame();
 
         execute!(stdout(), MoveTo(0, 0)).unwrap();

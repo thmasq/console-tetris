@@ -1,12 +1,11 @@
-use gemini_engine::elements::{
-    ascii::TextAlign,
-    view::{Modifier, ViewElement},
-    Pixel, Text, Vec2D,
+use gemini_engine::{
+    ascii::{Text, TextAlign},
+    core::{CanDraw, Modifier, Vec2D},
 };
 
 const ALERT_LIFETIME: u16 = 20;
 
-pub fn generate_alert_for_filled_lines(cleared_lines: isize) -> Option<(isize, String)> {
+pub fn generate_alert_for_filled_lines(cleared_lines: i64) -> Option<(i64, String)> {
     match cleared_lines {
         1 => Some((100, String::from("Single!"))),
         2 => Some((300, String::from("Double!"))),
@@ -36,8 +35,8 @@ impl AlertDisplay {
 
     pub fn handle_with_score(
         &mut self,
-        score: &mut isize,
-        score_and_alert: Option<(isize, String)>,
+        score: &mut i64,
+        score_and_alert: Option<(i64, String)>,
     ) {
         if let Some((add_score, alert)) = score_and_alert {
             *score += add_score;
@@ -48,8 +47,8 @@ impl AlertDisplay {
     /// Will pick the first existing alert score pair and run `handle_with_score` on that
     pub fn priorised_alerts_with_score(
         &mut self,
-        alert_score_pairs: &[Option<(isize, String)>],
-        score: &mut isize,
+        alert_score_pairs: &[Option<(i64, String)>],
+        score: &mut i64,
     ) {
         for score_alert_pair in alert_score_pairs {
             if score_alert_pair.is_some() {
@@ -78,20 +77,13 @@ impl AlertDisplay {
     }
 }
 
-impl ViewElement for AlertDisplay {
-    fn active_pixels(&self) -> Vec<Pixel> {
-        self.alerts
-            .iter()
-            .enumerate()
-            .flat_map(|(i, (alert, _))| {
-                Text::draw_with_align(
-                    self.pos + Vec2D::new(0, i as isize),
-                    alert,
-                    TextAlign::Centered,
-                    Modifier::None,
-                )
-            })
-            .collect()
+impl CanDraw for AlertDisplay {
+    fn draw_to(&self, canvas: &mut impl gemini_engine::core::Canvas) {
+        self.alerts.iter().enumerate().for_each(|(i, (alert, _))| {
+            Text::new(self.pos + Vec2D::new(0, i as i64), alert, Modifier::None)
+                .with_align(TextAlign::Centered)
+                .draw_to(canvas);
+        });
     }
 }
 

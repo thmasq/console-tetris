@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::BlockType;
-use gemini_engine::elements::{view::Colour, Vec2D};
+use gemini_engine::core::{Colour, Vec2D};
 
 pub(super) struct BlockData {
     pub rotation_states: Vec<Vec<Vec2D>>,

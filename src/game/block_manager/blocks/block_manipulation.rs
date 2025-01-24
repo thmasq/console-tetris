@@ -1,7 +1,6 @@
-use gemini_engine::elements::{
-    containers::CollisionContainer,
-    view::{utils, ViewElement},
-    Vec2D,
+use gemini_engine::{
+    containers::{CanCollide, CollisionContainer},
+    core::Vec2D,
 };
 
 use super::{Block, BlockType};
@@ -45,8 +44,8 @@ pub fn try_rotate_block(
 pub fn handle_t_spin(
     collision: &CollisionContainer,
     block: &Block,
-    cleared_lines: isize,
-) -> Option<(isize, String)> {
+    cleared_lines: i64,
+) -> Option<(i64, String)> {
     if block.shape == BlockType::T {
         let collision_pixels = utils::pixels_to_points(&collision.active_pixels());
 

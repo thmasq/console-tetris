@@ -1,24 +1,24 @@
-use gemini_engine::elements::{
-    containers::CollisionContainer,
-    view::{ColChar, ViewElement},
-    PixelContainer, Rect, Vec2D,
+use gemini_engine::{
+    containers::{CollisionContainer, PixelContainer},
+    core::{CanDraw, ColChar, Vec2D},
+    primitives::Rect,
 };
 
 pub fn generate_borders() -> PixelContainer {
     let mut borders = PixelContainer::new();
-    borders.blit(&Rect::new(
+    borders.draw(&Rect::new(
         // Left wall
         Vec2D::new(0, 0),
         Vec2D::new(1, 21),
         ColChar::SOLID,
     ));
-    borders.blit(&Rect::new(
+    borders.draw(&Rect::new(
         // Right wall
         Vec2D::new(11, 0),
         Vec2D::new(1, 21),
         ColChar::SOLID,
     ));
-    borders.blit(&Rect::new(
+    borders.draw(&Rect::new(
         // Floor
         Vec2D::new(1, 20),
         Vec2D::new(10, 1),
@@ -48,12 +48,12 @@ impl CollisionManager {
         ])
     }
 
-    pub fn blit<E: ViewElement>(&mut self, element: &E) {
-        self.stationary_blocks.blit(element);
+    pub fn draw<E: CanDraw>(&mut self, element: &E) {
+        self.stationary_blocks.draw(element);
     }
 
     // Remove all filled lines and return the number of lines filled and removed
-    pub fn clear_filled_lines(&mut self) -> isize {
+    pub fn clear_filled_lines(&mut self) -> i64 {
         let mut pixels = self.stationary_blocks.pixels.clone();
         if pixels.is_empty() {
             return 0;
@@ -65,7 +65,7 @@ impl CollisionManager {
         let max_y = pixels.iter().map(|p| p.pos.y).max().unwrap_or(0);
 
         'row: for y in min_y..=max_y {
-            let row_pixels: Vec<isize> = pixels
+            let row_pixels: Vec<i64> = pixels
                 .iter()
                 .filter(|p| p.pos.y == y)
                 .map(|p| p.pos.x)
@@ -122,8 +122,8 @@ impl CollisionManager {
     /// Add an element to the stationary blocks and clear all full lines
     ///
     /// Returns the number of cleared lines
-    pub fn blit_and_clear_lines<E: ViewElement>(&mut self, block: &E) -> isize {
-        self.blit(block);
+    pub fn draw_and_clear_lines<E: CanDraw>(&mut self, block: &E) -> i64 {
+        self.draw(block);
         self.clear_filled_lines()
     }
 }

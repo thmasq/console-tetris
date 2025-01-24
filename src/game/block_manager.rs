@@ -1,4 +1,4 @@
-use gemini_engine::elements::{containers::CollisionContainer, PixelContainer, Vec2D};
+use gemini_engine::{containers::{CanCollide, CollisionContainer, PixelContainer}, core::Vec2D};
 mod blocks;
 pub use blocks::{block_manipulation as tetris_core, Block, BlockType};
 use rand::Rng;
@@ -101,8 +101,8 @@ impl BlockManager {
     pub fn check_for_t_spin(
         &self,
         collision: &CollisionContainer,
-        cleared_lines: isize,
-    ) -> Option<(isize, String)> {
+        cleared_lines: i64,
+    ) -> Option<(i64, String)> {
         tetris_core::handle_t_spin(collision, &self.block, cleared_lines)
     }
 
@@ -110,8 +110,8 @@ impl BlockManager {
         let mut container = PixelContainer::new();
         for i in 0..self.piece_preview_count {
             let mut next_block_display = Block::new(self.bag[self.bag.len() - i - 1]);
-            next_block_display.pos = Vec2D::new(15, 12 + i as isize * 3);
-            container.blit(&next_block_display);
+            next_block_display.pos = Vec2D::new(15, 12 + i as i64 * 3);
+            container.draw(&next_block_display);
         }
 
         container

@@ -1,10 +1,10 @@
+use gemini_engine::core::{CanDraw, ColChar, Vec2D};
+use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
-use gemini_engine::elements::view::{utils, ColChar, Pixel, Vec2D, ViewElement};
 mod block_data;
-pub mod block_manipulation;
 use block_data::BlockData;
-use rand::seq::SliceRandom;
+pub mod block_manipulation;
 
 const fn bool_to_polarity(value: bool) -> isize {
     if value {
@@ -100,8 +100,8 @@ impl Clone for Block {
     }
 }
 
-impl ViewElement for Block {
-    fn active_pixels(&self) -> Vec<Pixel> {
+impl CanDraw for Block {
+    fn draw_to(&self, canvas: &mut impl gemini_engine::core::Canvas) {
         let rotation_states = self.shape.get_rotation_states();
         let block_colour = if self.is_ghost {
             ColChar::BACKGROUND
@@ -109,12 +109,8 @@ impl ViewElement for Block {
             self.shape.get_colour()
         };
 
-        let block_points: Vec<Vec2D> = rotation_states
-            [self.rotation.rem_euclid(rotation_states.len())]
-        .iter()
-        .map(|p| *p + self.pos)
-        .collect();
-
-        utils::points_to_pixels(&block_points, block_colour)
+        rotation_states[self.rotation.rem_euclid(rotation_states.len())]
+            .iter()
+            .for_each(|p| canvas.plot(*p + self.pos, block_colour));
     }
 }
