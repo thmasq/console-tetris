@@ -42,10 +42,10 @@ impl CollisionManager {
     }
 
     pub fn get(&self) -> CollisionContainer<'_> {
-        CollisionContainer::from(vec![
-            &self.game_boundaries as _,
-            &self.stationary_blocks as _,
-        ])
+        let mut collision = CollisionContainer::new();
+        collision.push(&self.game_boundaries);
+        collision.push(&self.stationary_blocks);
+        collision
     }
 
     pub fn draw<E: CanDraw>(&mut self, element: &E) {
@@ -125,5 +125,12 @@ impl CollisionManager {
     pub fn draw_and_clear_lines<E: CanDraw>(&mut self, block: &E) -> i64 {
         self.draw(block);
         self.clear_filled_lines()
+    }
+}
+
+impl CanDraw for CollisionManager {
+    fn draw_to(&self, canvas: &mut impl gemini_engine::core::Canvas) {
+        self.stationary_blocks.draw_to(canvas);
+        self.game_boundaries.draw_to(canvas);
     }
 }

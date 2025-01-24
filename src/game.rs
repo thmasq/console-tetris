@@ -58,6 +58,10 @@ impl Game {
 impl MainLoopRoot for Game {
     type InputDataType = Event;
 
+    fn get_fps(&self) -> f32 {
+        60.0
+    }
+
     fn frame(&mut self, input_data: Option<Self::InputDataType>) {
         self.t += 1;
         let mut block_speed = 12;
@@ -144,7 +148,7 @@ impl MainLoopRoot for Game {
                 self.alert_display.priorised_alerts_with_score(
                     &[
                         self.block_manager.check_for_t_spin(
-                            &CollisionContainer::from(vec![&pre_clear_blocks as _]),
+                            &pre_clear_blocks,
                             cleared_lines,
                         ),
                         generate_alert_for_filled_lines(cleared_lines),

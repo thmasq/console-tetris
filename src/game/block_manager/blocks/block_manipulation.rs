@@ -42,13 +42,11 @@ pub fn try_rotate_block(
 }
 
 pub fn handle_t_spin(
-    collision: &CollisionContainer,
+    collision: &impl CanCollide,
     block: &Block,
     cleared_lines: i64,
 ) -> Option<(i64, String)> {
     if block.shape == BlockType::T {
-        let collision_pixels = utils::pixels_to_points(&collision.active_pixels());
-
         let positions_to_check: Vec<Vec2D> = [
             Vec2D::new(1, 1),   // Top-left
             Vec2D::new(1, -1),  // Top-right
@@ -60,18 +58,18 @@ pub fn handle_t_spin(
         .collect();
         let mut counted_positions = 0;
         for pos in &positions_to_check {
-            if collision_pixels.contains(pos) {
+            if collision.collides_with_pos(*pos) {
                 counted_positions += 1;
             }
         }
 
         let blocked_from_top_right = if let 0..=2 = block.rotation {
-            collision_pixels.contains(&positions_to_check[1])
+            collision.collides_with_pos(positions_to_check[1])
         } else {
             false
         };
         let blocked_from_top_left = if let 0 | 2 | 3 = block.rotation {
-            collision_pixels.contains(&positions_to_check[3])
+            collision.collides_with_pos(positions_to_check[3])
         } else {
             false
         };

@@ -3,7 +3,6 @@ use gemini_engine::gameloop::MainLoopRoot;
 mod game;
 use game::Game;
 
-const FPS: f32 = 60.0;
 const BLOCK_PLACE_COOLDOWN: u32 = 30;
 const PIECE_PREVIEW_COUNT: usize = 3;
 const CONTROLS_HELP_TEXT: &str = "Controls:
@@ -22,5 +21,5 @@ fn main() {
         CONTROLS_HELP_TEXT,
     );
 
-    game.main_loop(FPS);
+    game.main_loop();
 }

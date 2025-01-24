@@ -100,7 +100,7 @@ impl BlockManager {
     /// Generate an appropriate alert
     pub fn check_for_t_spin(
         &self,
-        collision: &CollisionContainer,
+        collision: &impl CanCollide,
         cleared_lines: i64,
     ) -> Option<(i64, String)> {
         tetris_core::handle_t_spin(collision, &self.block, cleared_lines)
