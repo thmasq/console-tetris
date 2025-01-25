@@ -94,6 +94,7 @@ impl MainLoopRoot for Game {
                     self.view.display_render().expect("Failed to clear screen");
                     self.audio_manager.toggle();
                     pause();
+                    self.audio_manager.toggle();
                 }
 
                 // Shift left
