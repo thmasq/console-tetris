@@ -5,6 +5,12 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+opt-level = 3
+lto = "fat"
+strip = true
+codegen-units = 1
+
 [dependencies]
 crossterm = "0.28.1"
 gemini-engine = {version = "1.0.1", default-features = false, features = ["gameloop"]}
