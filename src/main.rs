@@ -2,6 +2,7 @@ use console_input::keypress::enable_raw_mode;
 use gemini_engine::gameloop::MainLoopRoot;
 mod game;
 use game::Game;
+mod audio;
 
 const BLOCK_PLACE_COOLDOWN: u32 = 30;
 const PIECE_PREVIEW_COUNT: usize = 3;

@@ -1,4 +1,7 @@
-use std::io::stdout;
+use std::{
+    io::stdout,
+    time::{Duration, Instant},
+};
 
 use console_input::keypress::exit_raw_mode;
 use crossterm::{
@@ -18,6 +21,7 @@ mod alerts;
 mod block_manager;
 mod collision_manager;
 mod pause;
+use crate::audio::AudioManager;
 use alerts::AlertDisplay;
 use block_manager::BlockManager;
 use collision_manager::CollisionManager;
@@ -34,6 +38,8 @@ pub struct Game {
     t: usize,
     // Constants
     controls_help_text: String,
+    audio_manager: AudioManager,
+    last_volume_adjust: Instant,
 }
 
 impl Game {
@@ -42,6 +48,7 @@ impl Game {
         piece_preview_count: usize,
         controls_help_text: &str,
     ) -> Self {
+        let audio_manager = AudioManager::new();
         Self {
             view: View::new(50, 21, ColChar::EMPTY),
             alert_display: AlertDisplay::new(Vec2D::new(12, 7)),
@@ -51,6 +58,8 @@ impl Game {
             t: 0,
             // Constants
             controls_help_text: controls_help_text.to_string(),
+            audio_manager,
+            last_volume_adjust: Instant::now(),
         }
     }
 }
@@ -76,11 +85,14 @@ impl MainLoopRoot for Game {
             ..
         })) = input_data
         {
+            let now = Instant::now();
+
             match code {
                 // Pause
                 KeyCode::Esc => {
                     self.view.clear();
                     self.view.display_render().expect("Failed to clear screen");
+                    self.audio_manager.toggle();
                     pause();
                 }
 
@@ -119,6 +131,19 @@ impl MainLoopRoot for Game {
                 }
 
                 KeyCode::Char('c') => self.block_manager.hold(),
+
+                KeyCode::Char('+') | KeyCode::Char('=') => {
+                    if now.duration_since(self.last_volume_adjust) > Duration::from_millis(100) {
+                        self.audio_manager.increase_volume(0.1);
+                        self.last_volume_adjust = now;
+                    }
+                }
+                KeyCode::Char('-') => {
+                    if now.duration_since(self.last_volume_adjust) > Duration::from_millis(100) {
+                        self.audio_manager.decrease_volume(0.1);
+                        self.last_volume_adjust = now;
+                    }
+                }
 
                 _ => (),
             }
