@@ -1,6 +1,6 @@
 use std::io::stdout;
 
-use console_input::keypress::{exit_raw_mode, Input};
+use console_input::keypress::exit_raw_mode;
 use crossterm::{
     cursor::MoveTo,
     event::{Event, KeyCode, KeyEvent, KeyEventKind},
@@ -147,10 +147,8 @@ impl MainLoopRoot for Game {
                 // Display an appropriate alert
                 self.alert_display.priorised_alerts_with_score(
                     &[
-                        self.block_manager.check_for_t_spin(
-                            &pre_clear_blocks,
-                            cleared_lines,
-                        ),
+                        self.block_manager
+                            .check_for_t_spin(&pre_clear_blocks, cleared_lines),
                         generate_alert_for_filled_lines(cleared_lines),
                     ],
                     &mut self.score,
@@ -185,9 +183,8 @@ impl MainLoopRoot for Game {
 
         // Held piece display
         if let Some(held_piece) = self.block_manager.held_piece_display() {
-            self.view.draw(
-                &Text::new(Vec2D::new(29, 1), "Hold", Modifier::None),
-            );
+            self.view
+                .draw(&Text::new(Vec2D::new(29, 1), "Hold", Modifier::None));
             self.view.draw_double_width(&held_piece);
         } else {
             self.view.draw(&Sprite::new(
@@ -220,8 +217,23 @@ impl MainLoopRoot for Game {
         fps: f32,
         elapsed: std::time::Duration,
     ) -> (bool, Option<Self::InputDataType>) {
-        Input::sleep_fps_and_get_input(fps, elapsed)
-            .exit_on_kb_interrupt()
-            .as_tuple()
+        let frame_duration = std::time::Duration::from_secs_f32(1.0 / fps);
+        let sleep_duration = frame_duration
+            .checked_sub(elapsed)
+            .unwrap_or(std::time::Duration::ZERO);
+
+        if sleep_duration > std::time::Duration::ZERO {
+            std::thread::sleep(sleep_duration);
+        }
+
+        if let Ok(event) = crossterm::event::poll(std::time::Duration::from_millis(0)) {
+            if event {
+                if let Ok(input_event) = crossterm::event::read() {
+                    return (false, Some(input_event));
+                }
+            }
+        }
+
+        (false, None)
     }
 }
